@@ -1,0 +1,47 @@
+import numpy as np
+import math
+
+def stewart_ik_algebra_func(x, y, z, a, b, g):
+    # 运动学参数
+    # 零初始位置时静平台位置（相对于静平台坐标系）
+    B1 = np.array([12, -14, 0])
+    B2 = np.array([12, 14, 0])
+    B3 = np.array([6.12435565, 17.39230485, 0])
+    B4 = np.array([-18.12435565, 3.39230485, 0])
+    B5 = np.array([-18.12435565, -3.39230485, 0])
+    B6 = np.array([6.12435565, -17.39230485, 0])
+
+    # 零初始位置时动平台位置（相对于动平台坐标系）
+    P1 = np.array([12, -2, 0])
+    P2 = np.array([12, 2, 0])
+    P3 = np.array([-4.26794919, 11.39230485, 0])
+    P4 = np.array([-7.73205081, 9.39230485, 0])
+    P5 = np.array([-7.73205081, -9.39230485, 0])
+    P6 = np.array([-4.26794919, -11.39230485, 0])
+
+    L = np.zeros(6)
+    X = np.array([x, y, z])
+    RX = np.array([[1, 0, 0], [0, np.cos(a), -np.sin(a)], [0, np.sin(a), np.cos(a)]])
+    RY = np.array([[np.cos(b), 0, np.sin(b)], [0, 1, 0], [-np.sin(b), 0, np.cos(b)]])
+    RZ = np.array([[np.cos(g), -np.sin(g), 0], [np.sin(g), np.cos(g), 0], [0, 0, 1]])
+    R = np.dot(RZ, np.dot(RY, RX))
+
+    l1 = np.linalg.norm(X + np.dot(R, P1) - B1)
+    l2 = np.linalg.norm(X + np.dot(R, P2) - B2)
+    l3 = np.linalg.norm(X + np.dot(R, P3) - B3)
+    l4 = np.linalg.norm(X + np.dot(R, P4) - B4)
+    l5 = np.linalg.norm(X + np.dot(R, P5) - B5)
+    l6 = np.linalg.norm(X + np.dot(R, P6) - B6)
+    L = np.array([l1, l2, l3, l4, l5, l6])
+
+    return L
+
+# 使用示例
+x = 0
+y = 0
+z = 0
+a = math.pi / 8
+b = 0
+g = 0
+result = stewart_ik_algebra_func(x, y, z, a, b, g)
+print(result)
