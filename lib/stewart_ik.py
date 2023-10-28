@@ -18,9 +18,7 @@ P4 = np.array([-7.73205081, 9.39230485, 0])
 P5 = np.array([-7.73205081, -9.39230485, 0])
 P6 = np.array([-4.26794919, -11.39230485, 0])
 
-def stewart_ik_algebra_func(x, y, z, a, b, g):
-
-
+def stewart_ik_algebra(x, y, z, a, b, g):
     L = np.zeros(6)
     X = np.array([x, y, z])
     RX = np.array([[1, 0, 0], [0, np.cos(a), -np.sin(a)], [0, np.sin(a), np.cos(a)]])
@@ -38,15 +36,44 @@ def stewart_ik_algebra_func(x, y, z, a, b, g):
 
     return L
 
-# 使用示例
+# 测试示例
+'''
 x = -2
 y = 0
 z = 0
 a = 0
 b = 0
 g = 0
-result = stewart_ik_algebra_func(x, y, z, a, b, g)
+result = stewart_ik_algebra(x, y, z, a, b, g)
 print(result)
+'''
+
+def covert_status2Cmd(statusFilePath, savePath=None, csvHeader="ServoIndex, targetPulseWidth"):
+    statuses = np.genfromtxt(statusFilePath, delimiter=',')[1:]
+    cmdlist = []
+    lastStatus = np.full((22,), 1500.0)
+    
+    for status in statuses:
+        # figure out the servo changed
+        for idx, state in enumerate(status): 
+            if (lastStatus[idx]!=state and idx != 0):
+                cmdlist.append([idx-1,state])
+
+        cmdlist.append([-1,status[0]]) # get delay
+
+        lastStatus = status
+
+    if savePath != None:
+        np.savetxt(savePath, np.array(cmdlist), 
+                   fmt="%d", 
+                   delimiter=",",
+                   newline="\n", 
+                   header=csvHeader, 
+                   comments='')
+
+    return np.array(cmdlist)
+    
+
 "[12. 12. 12. 12. 12. 12.]"
 "[12.16552506 12.16552506 10.31652948 13.76841382 13.76841382 10.31652948]"
 "[12.16552506 12.16552506 13.76841382 10.31652948 10.31652948 13.76841382]"
