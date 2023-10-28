@@ -13,11 +13,6 @@
 #define PCA9685_SERVO_FREQUENCY_1 50
 #define PCA9685_OSCILLATOR_FREQUENCY_1 25300000
 
-#define PCA9685_ADDR_2 0x41
-#define PCA9685_SERVO_FREQUENCY_2 50
-#define PCA9685_OSCILLATOR_FREQUENCY_2 25300000
-
-
 
 Adafruit_PWMServoDriver pwm1 = Adafruit_PWMServoDriver(PCA9685_ADDR_1); 
 //Adafruit_PWMServoDriver pwm2 = Adafruit_PWMServoDriver(PCA9685_ADDR_2); 
@@ -78,12 +73,7 @@ void setup()
   pwm1.setOscillatorFrequency(PCA9685_OSCILLATOR_FREQUENCY_1); // Set the PWM oscillator frequency, used for fine calibration
   pwm1.setPWMFreq(PCA9685_SERVO_FREQUENCY_1);       // Set the servo operating frequency
   delay(100);
-  /*
-  pwm2.begin();
-  pwm2.setOscillatorFrequency(PCA9685_OSCILLATOR_FREQUENCY_2); // Set the PWM oscillator frequency, used for fine calibration
-  pwm2.setPWMFreq(PCA9685_SERVO_FREQUENCY_2);       // Set the servo operating frequency
-  delay(100);
-  */
+
 }
 
 void loop()
@@ -110,8 +100,6 @@ void onRecv_sendServoCMD()
 
       if (boardNum == 0){
         set_servo_pulseWidth(pwm1, pinNum, pulseWidth);
-      } else if (boardNum == 1){
-        set_servo_pulseWidth(pwm2, pinNum, pulseWidth);
       }
 
     } else if (buff[0] == 0x02){
