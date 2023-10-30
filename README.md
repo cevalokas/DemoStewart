@@ -6,10 +6,11 @@
 # 2. 数据
 数据以csv格式存储，主要有三部分：
 - platform_positions.csv: 硬件状态信息，包括
-  - "SP, X, Y, Z" 固定平面上六个马达的点
+  - "SP, X, Y, Z" 六个马达的坐标
+  - "DP, X, Y, Z" 动平面上六个连动点坐标
 - state_cmd.csv: 目标姿态指令
-  - "DelayTime, x, y, z, a, b, c" 坐标和绕坐标旋转的角度
-- pwm_cmd.csv: 翻译成pwm信号指令
+  - "DelayTime, x, y, z, a, b, c" 延时，三维坐标和绕三个坐标轴旋转的角度
+- pwm_cmd.csv: 对每个舵机的pwm信号指令
   - "DelayTime, S0, S1, S2, S3, S4, S5"
 
 

@@ -35,6 +35,8 @@ def readState(file_path): #读位置状态
                 V.append(position)
 
     return X, V
+
+
 def stewart_ik_algebra(X, a, b, g, DP, SP): #逆运动学解舵机PWM
   L = np.zeros(6)
   RX = np.array([[1, 0, 0], [0, np.cos(a), -np.sin(a)], [0, np.sin(a), np.cos(a)]])
@@ -53,13 +55,13 @@ def stewart_ik_algebra(X, a, b, g, DP, SP): #逆运动学解舵机PWM
   for i in range(6): # 使用余弦定理计算每个角的余弦值
     cos_angle_A[i] = (b**2 + L[i]**2 - a**2) / (2 * b * L[i])
 
-  for i in range(6):# 使用反余弦函数计算每个角的度数
-    angle_A[i] = math.degrees(math.acos(cos_angle_A[i]))
+  for i in range(6):# 使用反余弦函数计算每个角的弧度
+    angle_A[i] = math.acos(cos_angle_A[i])
   #to do 有三个是反过来的
 
   PWM = np.zeros(6)
   for i in range(6):
-    PWM[i] = 500 + angle_A[i]*2000/180
+    PWM[i] = int(500 + angle_A[i]*2000/math.pi)
   return PWM
 
 
