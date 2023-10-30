@@ -57,6 +57,7 @@ def stewart_ik_algebra(X, a, b, g, DP, SP): #逆运动学解舵机PWM
 
   for i in range(6):# 使用反余弦函数计算每个角的度数
     angle_A[i] = math.degrees(math.acos(cos_angle_A[i]))
+  #to do 有三个是反过来的
 
   PWM = degree2PWM(angle_A)
 
