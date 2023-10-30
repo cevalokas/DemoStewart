@@ -96,8 +96,6 @@ void onRecv_sendServoCMD()
       int boardNum = buff[1] >> 4;
       u_int16_t pulseWidth = buff[2]*256 + buff[3];
       
-      debbugingInfo(boardNum, pinNum, pulseWidth); // For debugging
-
       if (boardNum == 0){
         set_servo_pulseWidth(pwm1, pinNum, pulseWidth);
       }
@@ -117,26 +115,10 @@ void onRecv_sendServoCMD()
   }
 }
 
-void debbugingInfo(int boardNum, int pinNum, int pulseWidth) {
-  String value_info = "[SERVO-CMD] boardNum:";
-  value_info = value_info + boardNum;
-
-  value_info = value_info + " pinNum:";
-  value_info = value_info + pinNum;
-
-  value_info = value_info + " pulseWidth:";
-  value_info = value_info + pulseWidth;
-  Serial.println(value_info);
-}
 
 void set_servo_pulseWidth(Adafruit_PWMServoDriver &pwmBoard, int pinNum, int pulseWidth) {
   // send cmd by IIC
   pwmBoard.setPWM(pinNum, 0, pulseWidth);
-}
-
-void set_servo_angle(Adafruit_PWMServoDriver &pwmBoard, int pinNum, float angle){
-  /* 调用set_servo_pulseWidth */
-  // to do
 }
 
 

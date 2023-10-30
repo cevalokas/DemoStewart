@@ -2,8 +2,24 @@ import numpy as np
 import csv
 import math
 
+# 运动学参数
+# 零初始位置时静平台位置（相对于静平台坐标系）
+B1 = np.array([12, -14, 0])
+B2 = np.array([12, 14, 0])
+B3 = np.array([6.12435565, 17.39230485, 0])
+B4 = np.array([-18.12435565, 3.39230485, 0])
+B5 = np.array([-18.12435565, -3.39230485, 0])
+B6 = np.array([6.12435565, -17.39230485, 0])
 
-def readPlatform(file_path): # 读初始位置
+# 零初始位置时动平台位置（相对于动平台坐标系）
+P1 = np.array([12, -2, 0])
+P2 = np.array([12, 2, 0])
+P3 = np.array([-4.26794919, 11.39230485, 0])
+P4 = np.array([-7.73205081, 9.39230485, 0])
+P5 = np.array([-7.73205081, -9.39230485, 0])
+P6 = np.array([-4.26794919, -11.39230485, 0])
+
+def read_platform_positions_from_csv(file_path):
     SP = []
     DP = []
 
@@ -20,24 +36,8 @@ def readPlatform(file_path): # 读初始位置
 
     return SP, DP
 
-def readState(file_path): #读位置状态指令
-    X = []
-    V = []
 
-    with open(file_path, 'r') as csvfile:
-        reader = csv.reader(csvfile)
-        next(reader)  # Skip the header row
-        for row in reader:
-            position_type, x, y, z = row
-            position = np.array([float(x), float(y), float(z)])
-            if position_type == 'SP':
-                X.append(position)
-            elif position_type == 'DP':
-                V.append(position)
-
-    return X, V
-
-def stewart_ik_algebra(x, y, z, a, b, g, DP, SP): #输入动平面解舵机PWM
+def stewart_ik_algebra(x, y, z, a, b, g):
   L = np.zeros(6)
   X = np.array([x, y, z])
   RX = np.array([[1, 0, 0], [0, np.cos(a), -np.sin(a)], [0, np.sin(a), np.cos(a)]])
@@ -45,31 +45,37 @@ def stewart_ik_algebra(x, y, z, a, b, g, DP, SP): #输入动平面解舵机PWM
   RZ = np.array([[np.cos(g), -np.sin(g), 0], [np.sin(g), np.cos(g), 0], [0, 0, 1]])
   R = np.dot(RZ, np.dot(RY, RX))
 
-  for i in range(6): #计算对应两点距离
-    L[i] = np.linalg.norm(X + np.dot(R, DP[i]) - SP[i])
+  l1 = np.linalg.norm(X + np.dot(R, P1) - B1)
+  l2 = np.linalg.norm(X + np.dot(R, P2) - B2)
+  l3 = np.linalg.norm(X + np.dot(R, P3) - B3)
+  l4 = np.linalg.norm(X + np.dot(R, P4) - B4)
+  l5 = np.linalg.norm(X + np.dot(R, P5) - B5)
+  l6 = np.linalg.norm(X + np.dot(R, P6) - B6)
+  
+  # 已知三条边的长度
+  a = 5.0  # 替换为第一条边的长度
+  b = 4.0  # 替换为第二条边的长度
 
-
-  a = 5.0  # 替换为长边（螺杆）的长度
-  b = 4.0  # 替换为短边（转角）的长度
-  cos_angle_A = np.zeros(6)
-  angle_A = np.zeros(6)
-
-  for i in range(6): # 使用余弦定理计算每个角的余弦值
-    cos_angle_A[i] = (b**2 + L[i]**2 - a**2) / (2 * b * L[i])
-
-  for i in range(6):# 使用反余弦函数计算每个角的度数
-    angle_A[i] = math.degrees(math.acos(cos_angle_A[i]))
-
-  PWM = degree2PWM(angle_A)
-
-  return PWM
-
-def degree2PWM(angles):
-  PWM = np.zeros(6)
   for i in range(6):
-    PWM[i] = 500 + angles[i]*2000/180
-  return PWM
+    # 使用余弦定理计算每个角的余弦值
+    cos_angle_A[i] = (b**2 + l[i]**2 - a**2) / (2 * b * l[i])
 
+  # 使用反余弦函数计算每个角的度数
+  angle_A_degrees = math.degrees(math.acos(cos_angle_A))
+
+  return PW
+
+# 测试示例
+'''
+x = -2
+y = 0
+z = 0
+a = 0
+b = 0
+g = 0
+result = stewart_ik_algebra(x, y, z, a, b, g)
+print(result)
+'''
 
 def covert_status2Cmd(statusFilePath, savePath=None, csvHeader="ServoIndex, targetPulseWidth"):
     statuses = np.genfromtxt(statusFilePath, delimiter=',')[1:]
