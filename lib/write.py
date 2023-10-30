@@ -12,7 +12,7 @@ DP = [np.array([12, -2, 0]), np.array([12, 2, 0]), np.array([-4.26794919, 11.392
      np.array([-4.26794919, -11.39230485, 0])]
 
 # 将数据保存到CSV文件
-with open('platform_positions.csv', 'w', newline='') as csvfile:
+with open('./lib/platform_positions.csv', 'w', newline='') as csvfile:
     writer = csv.writer(csvfile)
     writer.writerow(['PositionType', 'X', 'Y', 'Z'])
     for b in SP:

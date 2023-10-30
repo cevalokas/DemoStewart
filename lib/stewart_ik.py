@@ -37,9 +37,8 @@ def readState(file_path): #读位置状态指令
 
     return X, V
 
-def stewart_ik_algebra(x, y, z, a, b, g, DP, SP): #输入动平面解舵机PWM
+def stewart_ik_algebra(X, a, b, g, DP, SP): #逆运动学解舵机PWM
   L = np.zeros(6)
-  X = np.array([x, y, z])
   RX = np.array([[1, 0, 0], [0, np.cos(a), -np.sin(a)], [0, np.sin(a), np.cos(a)]])
   RY = np.array([[np.cos(b), 0, np.sin(b)], [0, 1, 0], [-np.sin(b), 0, np.cos(b)]])
   RZ = np.array([[np.cos(g), -np.sin(g), 0], [np.sin(g), np.cos(g), 0], [0, 0, 1]])
@@ -47,7 +46,6 @@ def stewart_ik_algebra(x, y, z, a, b, g, DP, SP): #输入动平面解舵机PWM
 
   for i in range(6): #计算对应两点距离
     L[i] = np.linalg.norm(X + np.dot(R, DP[i]) - SP[i])
-
 
   a = 5.0  # 替换为长边（螺杆）的长度
   b = 4.0  # 替换为短边（转角）的长度
@@ -102,11 +100,11 @@ def loadCmd(cmdFilePath):
 
 
 if __name__ == '__main__':
-  SP = []
-  DP = []
+  SP, DP = readPlatform("platform_positions.csv")
+  X, V = readState("state_cmd.csv")
+  PWM = stewart_ik_algebra(X, V[0], V[1], V[2], DP, SP)  
   
   covert_status2Cmd(statusFilePath="Demo1Status.csv", savePath="Demo1CMD.csv")
-
   type_cmds = "pulseWidth"
   arr_cmds = loadCmd("Demo1CMD.csv")
 
