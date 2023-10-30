@@ -1,6 +1,5 @@
 import csv
 import serial
-import struct
 import time
 
 def send_servo_commands_from_csv(ser_port, file_path):
@@ -24,7 +23,8 @@ def send_servo_commands_from_csv(ser_port, file_path):
                 high_byte = (cmd[i] >> 8) & 0xFF
                 byte_array.append(high_byte)
                 byte_array.append(low_byte)
-            
+            print(byte_array)#测试用
+            ser.write(byte_array)
             time.sleep(cmd[0]/1000)
 
         # 关闭串口连接
@@ -36,7 +36,7 @@ def send_servo_commands_from_csv(ser_port, file_path):
 
 
 if __name__ == '__main__':
-  file_path = 'pwm_cmd.csv'  
+  file_path = './lib/pwm_cmd.csv'  
   ser_port = 'COM3'  
   success = send_servo_commands_from_csv(ser_port, file_path)
   if success:

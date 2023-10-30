@@ -59,7 +59,6 @@ def stewart_ik_algebra(X, V, DP, SP,lc): #逆运动学解舵机PWM
   PWM = np.zeros([lc,7])
   L1 = 85.0  # 长边（螺杆）的长度mm
   L2 = 20.0  # 短边（转角）的长度mm
-
   for k in range(lc):
     a, b, g = V[k,0], V[k,1], V[k,2]
     L = np.zeros(6)
@@ -69,24 +68,20 @@ def stewart_ik_algebra(X, V, DP, SP,lc): #逆运动学解舵机PWM
     R = np.dot(RZ, np.dot(RY, RX))
 
     for i in range(6): #计算对应两点距离
-        print(X[k] + np.dot(R, DP[i]) - SP[i])#
         L[i] = np.linalg.norm(X[k] + np.dot(R, DP[i]) - SP[i])
-    print(L)#
 
-    cos_angle = np.zeros(6)
-    angle = np.zeros(6)
+    cos_angle_A = np.zeros(6)
+    angle_A = np.zeros(6)
 
     for i in range(6): # 使用余弦定理计算每个角的余弦值
-        cos_angle[i] = (L2**2 + L[i]**2 - L1**2) / (2 * L2 * L[i])
-        #cosA = (b**2 + c**2 - a**2) / (2 * b * c)
-        print(cos_angle[i])#
+        cos_angle_A[i] = (L2**2 + L[i]**2 - L1**2) / (2 * L2 * L[i])
 
     for i in range(6):# 使用反余弦函数计算每个角的弧度
-        angle[i] = math.acos(cos_angle[i])
+        angle_A[i] = math.acos(cos_angle_A[i])
     #to do 有三个是反过来的
 
     for i in range(1, 6):
-        PWM[k, i] = int(500 + angle[i]*2000/math.pi)
+        PWM[k, i] = int(500 + angle_A[i]*2000/math.pi)
 
   return PWM
 
@@ -98,11 +93,9 @@ def writePWM(file_path, PWM):  #输出PWN信号
 
 
 
-
 if __name__ == '__main__':
     SP, DP = readPlatform("./lib/platform_positions.csv")
+    print(SP, '\n', DP)
     T, X, V, lc = readState("./lib/state_cmd.csv")
-    PWM = stewart_ik_algebra(X, V, DP, SP, lc)  
-    refresh("./lib/pwn_cmd.csv")
-    writePWM("./lib/pwn_cmd.csv",PWM)
+    print(T,'\n', V)
 
