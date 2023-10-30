@@ -1,72 +1,32 @@
-# HumanoidRobot_Dev
+# Demo_Stewart
 
-# 1. 文件结构
+# 1. 硬件结构
+使用ESP32驱动单个PCA9685芯片驱动6个舵机
 
-ESP32代码在 `main.cpp` 内，基于python的上位机代码在 `lib/HumanoidRobot` 内
+# 2. 数据
+数据以csv格式存储，主要有三部分：
+- platform_positions.csv: 硬件状态信息，包括
+  - "SP, X, Y, Z" 固定平面上六个马达的点
+- state_cmd.csv: 目标姿态指令
+  - "DelayTime, x, y, z, a, b, c" 坐标和绕坐标旋转的角度
+- pwm_cmd.csv: 翻译成pwm信号指令
+  - "DelayTime, S0, S1, S2, S3, S4, S5"
 
 
-## Python上位机
-
+# 3. 软件结构
+## 接口协议
 使用 `pyserial` 库，通过USB向ESP32发送指令。单条指令 4Bytes（指令位(1Byte)+数据位(3Bytes)），协议如下：
 
 | 指令 Instruction         | 指令位 Code | 数据位 Data                                     |
 | ------------------------ | ----------- | ----------------------------------------------- |
 | 复原                     | 0x00        | to do                                           |
-| 控制舵机角度(pulseWidth) | 0x01        | boardNum(4bits)+pinNum(4bits)+pulseWidth(8bits) |
-| 斯特尔特平台向量          | 
+| 控制舵机角度(pulseWidth) | 0x01        | boardNum(4bits)+pinNum(4bits)+pulseWidth(8bits) |0
 
-## ESP32
+## stewart_ik.py
+逆运动学变换，读硬件状态和目标姿态，解出对应PWM信号，存到“pwm_cmd.csv”
 
+## main.py
+读取pwm_cmd.csv, 转换协议发送到serrial
+
+## main.cpp
 通过串口，接受来自上位机（python）的命令。串口中断，执行回调函数 `onRecv_sendServoCMD()`，实现向 PCA9685 芯片发送 IIC 的指令。
-
-# 2. 人脸数据
-
-数据以csv格式存储，主要有三部分：
-- `xxxServoInfo.csv`: 舵机信息包含
-  - `servoIndex, boardNum, pinNum, Name, pulseMin, pulseMax, initPos(bias)`
-- `xxxStatus.csv`: 给上位机的人脸状态数据
-  - `DelayTime,S1,S2,S3,...,Sn`
-- `xxxCMD.csv`: 给上位机的指令数据
-  - `ServoIndex, targetPulseWidth` 
-  - `ServoIndex`为-1时，`targetPulseWidth`表示delayTime，单位ms
-
-## 2.1 人脸版本管理规范
-
-版本号规定：`a.b.c.d`
-
-其中，`a`、`b`基于人头机械设计，`c`基于人头算法设计，`d`基于装配版本
-
-`a`: 机械结构大调整，涉及舵机数量和名称改变
-
-`b`: 执行件结构调整，涉及舵机角度约束改变
-
-`c`: 算法调整
-
-`d`: 基于装配版本, 主要涉及bias
-
-
-
-### V1.2.x.x 人脸数据规范
-| servoIndex | Name        | boardNum | pinNum | pulseMin | pulseMax |
-| ---------- | ----------- | -------- | ------ | -------- | -------- |
-| 0          | 左眉外      | 0        | 0      | -450     | 80       |
-| 1          | 左眉内      | 0        | 1      | -120     | 280      |
-| 2          | 左眼睑      | 0        | 2      | -440     | 160      |
-| 3          | 左眼yaw角   | 0        | 3      | 140      | 180      |
-| 4          | 左眼pitch角 | 0        | 4      | -300     | 280      |
-| 5          | 右眉外      | 0        | 15     | -80      | 450      |
-| 6          | 右眉内      | 0        | 14     | -280     | 120      |
-| 7          | 右眼睑      | 0        | 13     | -160     | 440      |
-| 8          | 右眼yaw角   | 0        | 12     | -140     | 180      |
-| 9          | 右眼pitch角 | 0        | 11     | -300     | 280      |
-| 10         | 左下巴上    | 1        | 0      | 0        | 540      |
-| 11         | 左下巴下    | 1        | 1      | -160     | 280      |
-| 12         | 左嘴上      | 1        | 2      | -600     | 280      |
-| 13         | 左嘴下      | 1        | 3      | -320     | 220      |
-| 14         | 左下唇      | 1        | 4      | -240     | 160      |
-| 15         | 上唇        | 1        | 7      | -160     | 160      |
-| 16         | 右下巴上    | 1        | 15     | -540     | 0        |
-| 17         | 右下巴下    | 1        | 14     | -280     | 160      |
-| 18         | 右嘴上      | 1        | 13     | -280     | 600      |
-| 19         | 右嘴下      | 1        | 12     | -220     | 320      |
-| 20         | 右下唇      | 1        | 11     | -160     | 240      |

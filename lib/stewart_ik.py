@@ -1,9 +1,8 @@
 import numpy as np
-import csv
 import math
+import csv
 
-
-def readPlatform(file_path): # 读初始位置
+def readPlatform(file_path): # 读初始坐标
     SP = []
     DP = []
 
@@ -20,7 +19,7 @@ def readPlatform(file_path): # 读初始位置
 
     return SP, DP
 
-def readState(file_path): #读位置状态指令
+def readState(file_path): #读位置状态
     X = []
     V = []
 
@@ -36,7 +35,6 @@ def readState(file_path): #读位置状态指令
                 V.append(position)
 
     return X, V
-
 def stewart_ik_algebra(X, a, b, g, DP, SP): #逆运动学解舵机PWM
   L = np.zeros(6)
   RX = np.array([[1, 0, 0], [0, np.cos(a), -np.sin(a)], [0, np.sin(a), np.cos(a)]])
@@ -59,44 +57,10 @@ def stewart_ik_algebra(X, a, b, g, DP, SP): #逆运动学解舵机PWM
     angle_A[i] = math.degrees(math.acos(cos_angle_A[i]))
   #to do 有三个是反过来的
 
-  PWM = degree2PWM(angle_A)
-
-  return PWM
-
-def degree2PWM(angles):
   PWM = np.zeros(6)
   for i in range(6):
-    PWM[i] = 500 + angles[i]*2000/180
+    PWM[i] = 500 + angle_A[i]*2000/180
   return PWM
-
-
-def covert_status2Cmd(statusFilePath, savePath=None, csvHeader="ServoIndex, targetPulseWidth"):
-    statuses = np.genfromtxt(statusFilePath, delimiter=',')[1:]
-    cmdlist = []
-    lastStatus = np.full((22,), 1500.0)
-    
-    for status in statuses:
-        # figure out the servo changed
-        for idx, state in enumerate(status): 
-            if (lastStatus[idx]!=state and idx != 0):
-                cmdlist.append([idx-1,state])
-
-        cmdlist.append([-1,status[0]]) # get delay
-
-        lastStatus = status
-
-    if savePath != None:
-        np.savetxt(savePath, np.array(cmdlist), 
-                   fmt="%d", 
-                   delimiter=",",
-                   newline="\n", 
-                   header=csvHeader, 
-                   comments='')
-
-    return np.array(cmdlist)
-    
-def loadCmd(cmdFilePath):
-    return np.genfromtxt(cmdFilePath, delimiter=',')[1:]
 
 
 
@@ -104,8 +68,3 @@ if __name__ == '__main__':
   SP, DP = readPlatform("platform_positions.csv")
   X, V = readState("state_cmd.csv")
   PWM = stewart_ik_algebra(X, V[0], V[1], V[2], DP, SP)  
-  
-  covert_status2Cmd(statusFilePath="Demo1Status.csv", savePath="Demo1CMD.csv")
-  type_cmds = "pulseWidth"
-  arr_cmds = loadCmd("Demo1CMD.csv")
-
