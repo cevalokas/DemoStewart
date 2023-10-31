@@ -13,12 +13,13 @@ def send_servo_commands_from_csv(ser_port, file_path):
         next(csv_reader)# 跳过标题行
         
         for row in csv_reader:
-            cmd = [int(cell) for cell in row]             
+            cmd = [int(cell) for cell in row]     
+            print(cmd)        
             byte_array = bytearray()
             
             for i in range(1, len(cmd)):
                 byte_array.append(0x01)
-                byte_array.append(i & 0xFF)
+                byte_array.append(i-1 & 0xFF)
                 low_byte = cmd[i] & 0xFF
                 high_byte = (cmd[i] >> 8) & 0xFF
                 byte_array.append(high_byte)
@@ -37,7 +38,7 @@ def send_servo_commands_from_csv(ser_port, file_path):
 
 if __name__ == '__main__':
   file_path = './lib/pwm_cmd.csv'  
-  ser_port = 'COM3'  
+  ser_port = 'COM4'  
   success = send_servo_commands_from_csv(ser_port, file_path)
   if success:
       print("Commands sent successfully.")
