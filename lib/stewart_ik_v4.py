@@ -73,7 +73,7 @@ def stewart_transform(X, V, lc, T): #解舵机PWM
 def writePWM(file_path, PWM):  #输出PWN信号
     with open(file_path, 'a', newline='') as csvfile:  # 'a' 模式以附加
         writer = csv.writer(csvfile)
-        writer.writerows(PWM)
+        writer.writerow(PWM) #注意是单行还是多行
 
 
 
