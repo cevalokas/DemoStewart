@@ -2,7 +2,7 @@ import numpy as np
 
 class Stewart_Platform(object):   
 
-    def __init__(s, r_B, r_P, lhl, ldl, gamma_B, gamma_P, ref_rotation):
+    def __init__(s, r_B, r_P, lhl, ldl, gamma_S, gamma_D, ref_rotation):
         pi = np.pi
         beta = np.array([ 
             pi/2 + pi,        
@@ -14,22 +14,22 @@ class Stewart_Platform(object):
 
         # Psi_B (Polar coordinates)
         psi_B = np.array([ 
-            -gamma_B, 
-            gamma_B,
-            2*pi/3 - gamma_B, 
-            2*pi/3 + gamma_B, 
-            2*pi/3 + 2*pi/3 - gamma_B, 
-            2*pi/3 + 2*pi/3 + gamma_B])
+            -gamma_S, 
+            gamma_S,
+            2*pi/3 - gamma_S, 
+            2*pi/3 + gamma_S, 
+            2*pi/3 + 2*pi/3 - gamma_S, 
+            2*pi/3 + 2*pi/3 + gamma_S])
 
         # psi_P (Polar coordinates)
         # Direction of the points where the rod is attached to the platform.
         psi_P = np.array([ 
-            pi/3 + 2*pi/3 + 2*pi/3 + gamma_P,
-            pi/3 + -gamma_P, 
-            pi/3 + gamma_P,
-            pi/3 + 2*pi/3 - gamma_P, 
-            pi/3 + 2*pi/3 + gamma_P, 
-            pi/3 + 2*pi/3 + 2*pi/3 - gamma_P])
+            pi/3 + 2*pi/3 + 2*pi/3 + gamma_D,
+            pi/3 + -gamma_D, 
+            pi/3 + gamma_D,
+            pi/3 + 2*pi/3 - gamma_D, 
+            pi/3 + 2*pi/3 + gamma_D, 
+            pi/3 + 2*pi/3 + 2*pi/3 - gamma_D])
 
         psi_B = psi_B + np.repeat(ref_rotation, 6)
         psi_P = psi_P + np.repeat(ref_rotation, 6)
@@ -62,8 +62,8 @@ class Stewart_Platform(object):
         s.r_P = r_P
         s.lhl = lhl
         s.ldl = ldl
-        s.gamma_B = gamma_B
-        s.gamma_P = gamma_P
+        s.gamma_B = gamma_S
+        s.gamma_P = gamma_D
 
         # Calculated params
         s.beta = beta

@@ -3,7 +3,7 @@ import csv
 import math
 from stewart_algorithm import Stewart_Platform
 
-def readPlatform(file_path): # 读初始坐标
+def readPlatform(file_path): # 读初始坐标, 中心不对称
     SP = []
     DP = []
 
@@ -20,7 +20,7 @@ def readPlatform(file_path): # 读初始坐标
 
     return SP, DP
 
-def readState(file_path): #读位置状态
+def readStateCMD(file_path): #读位置状态指令
     with open(file_path, 'r') as csvfile:
         reader = csv.reader(csvfile)
         next(reader) 
@@ -54,13 +54,19 @@ def refresh(file_path):
         print(f"An error occurred: {str(e)}")
 
 
-def stewart_transform(X, V, lc, T): #解舵机PWM
-  PWM = np.zeros([lc,7])
+def stewart_ideal(X, V, lc, T): #平台中心对称，逆运动学
+
   L1 = 85.0  # 长边（螺杆）的长度mm
   L2 = 20.0  # 短边（转角）的长度mm
+  r_S = 50  #底座半径
+  r_D = 35  #平台半径
+  Psi_S = np.pi/6  #底座上两个锚点之间角度的一半
+  Psi_D = np.pi/6  #平台上两个锚点之间角度的一半
+  ref_rotation = 0 #平台相对旋转
 
+  PWM = np.zeros([lc,7])
   for k in range(lc):
-    platform = Stewart_Platform(50, 35, L2, L1, np.pi/6, np.pi/6, np.pi/2)
+    platform = Stewart_Platform(r_S, r_D, L2, L1, Psi_S, Psi_D, ref_rotation)
     servo_angles = platform.calculate( np.array([X[k,0],X[k,1],X[k,2]]), np.array([V[k,0], V[k,1], V[k,2]]) )
     PWM[k,0] = T[k]
     for i in range(1, 6):
@@ -69,6 +75,32 @@ def stewart_transform(X, V, lc, T): #解舵机PWM
 
   return PWM
 
+
+def stewart_odd(X, L1, L2, g, DP, SP): #平台不中心对称，逆运动学
+  L1 = 5.0  # 长边（螺杆）的长度
+  L2 = 4.0  # 短边（转角）的长度
+
+  L = np.zeros(6)
+  RX = np.array([[1, 0, 0], [0, np.cos(L1), -np.sin(L1)], [0, np.sin(L1), np.cos(L1)]])
+  RY = np.array([[np.cos(L2), 0, np.sin(L2)], [0, 1, 0], [-np.sin(L2), 0, np.cos(L2)]])
+  RZ = np.array([[np.cos(g), -np.sin(g), 0], [np.sin(g), np.cos(g), 0], [0, 0, 1]])
+  R = np.dot(RZ, np.dot(RY, RX))
+
+  for i in range(6): #计算对应两点距离
+    L[i] = np.linalg.norm(X + np.dot(R, DP[i]) - SP[i])
+  cos_angle_A = np.zeros(6)
+  angle_A = np.zeros(6)
+
+  for i in range(6): # 使用余弦定理计算每个角的余弦值
+    cos_angle_A[i] = (L2**2 + L[i]**2 - L1**2) / (2 * L2 * L[i])
+
+  for i in range(6):# 使用反余弦函数计算每个角的度数
+    angle_A[i] = math.degrees(math.acos(cos_angle_A[i]))
+  PWM = np.zeros(6)
+  for i in range(6):
+    PWM[i] = 500 + angle_A[i]*2000/180
+
+  return PWM
 
 def writePWM(file_path, PWM):  #输出PWN信号
     with open(file_path, 'a', newline='') as csvfile:  # 'a' 模式以附加
@@ -79,9 +111,9 @@ def writePWM(file_path, PWM):  #输出PWN信号
 
 
 if __name__ == '__main__':
-    SP, DP = readPlatform("./lib/platform_positions.csv")
-    T, X, V, lc = readState("./lib/state_cmd.csv")
-    PWM = stewart_transform(X, V, lc, T)  
+    #SP, DP = readPlatform("./lib/platform_positions.csv")
+    T, X, V, lc = readStateCMD("./lib/state_cmd.csv")
+    PWM = stewart_ideal(X, V, lc, T)  
     refresh("./lib/pwm_cmd.csv")
     writePWM("./lib/pwm_cmd.csv",PWM)
 

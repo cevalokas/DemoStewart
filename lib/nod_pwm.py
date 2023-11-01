@@ -1,6 +1,5 @@
 import time
 import math
-import csv
 from stewart_ik_v4 import refresh, writePWM
 
 
@@ -12,6 +11,7 @@ def neckNod(file_path):
   quickness = 10
 
   refresh(file_path)
+  
   while (pos >= min_pulse):
     PWM = [50, pos, 1500, pos, 3000 - pos, 1500, 3000 - pos]
     writePWM(file_path, PWM)
@@ -26,6 +26,8 @@ def neckNod(file_path):
     PWM = [50, pos, 1500, pos, 3000 - pos, 1500, 3000 - pos]
     writePWM(file_path, PWM)
     pos = pos - quickness
+
+  writePWM(file_path, PWM)
 
 
 
