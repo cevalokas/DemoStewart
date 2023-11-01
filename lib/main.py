@@ -2,7 +2,7 @@ import csv
 import serial
 import time
 
-def send_servo_commands_from_csv(ser_port, file_path):
+def send_commands(ser_port, file_path):
   try:
     # 创建串口连接
     ser = serial.Serial(ser_port, 9600)  
@@ -39,7 +39,7 @@ def send_servo_commands_from_csv(ser_port, file_path):
 if __name__ == '__main__':
   file_path = './lib/pwm_cmd.csv'  
   ser_port = 'COM4'  
-  success = send_servo_commands_from_csv(ser_port, file_path)
+  success = send_commands(ser_port, file_path)
   if success:
       print("Commands sent successfully.")
   else:

@@ -8,7 +8,7 @@ def neckNod(file_path):
   min_pulse = 500
   mid_pulse = 1500
   pos = 1500
-  quickness = 10
+  quickness = 20
 
   refresh(file_path)
   
