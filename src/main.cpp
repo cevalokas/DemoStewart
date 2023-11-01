@@ -96,6 +96,8 @@ void onRecv_sendServoCMD()
       int boardNum = buff[1] >> 4;
       u_int16_t pulseWidth = buff[2]*256 + buff[3];
       
+      debbugingInfo(boardNum, pinNum, pulseWidth); // For debugging
+
       if (boardNum == 0){
         set_servo_pulseWidth(pwm1, pinNum, pulseWidth);
       }
@@ -116,9 +118,33 @@ void onRecv_sendServoCMD()
 }
 
 
+void debbugingInfo(int boardNum, int pinNum, int pulseWidth) {
+  String value_info = "[SERVO-CMD] boardNum:";
+  value_info = value_info + boardNum;
+
+  value_info = value_info + " pinNum:";
+  value_info = value_info + pinNum;
+
+  value_info = value_info + " pulseWidth:";
+  value_info = value_info + pulseWidth;
+  Serial.println(value_info);
+}
+
 void set_servo_pulseWidth(Adafruit_PWMServoDriver &pwmBoard, int pinNum, int pulseWidth) {
   // send cmd by IIC
   pwmBoard.setPWM(pinNum, 0, pulseWidth);
+}
+
+void set_servo_angle(Adafruit_PWMServoDriver &pwmBoard, int pinNum, float angle, float minAngle=0.0, float maxAngle=180.0, float minPulseWidth=500, float maxPulseWidth=2500, int freq=PCA9685_SERVO_FREQUENCY_1){
+  /* 调用set_servo_pulseWidth */
+  // 确认角度范围
+  angle = constrain(angle, minAngle, maxAngle);
+  
+  // 计算脉冲长度
+  float pulseWidth_us = map(angle, minAngle, maxAngle, minPulseWidth, maxPulseWidth); 
+
+  // Set the servo position
+  pwmBoard.setPWM(pinNum, 0, int((pulseWidth_us * freq * 4096) / 1000000));
 }
 
 

@@ -14,18 +14,18 @@ def send_servo_commands_from_csv(ser_port, file_path):
         
         for row in csv_reader:
             cmd = [int(cell) for cell in row]     
-            print(cmd)        
-            byte_array = bytearray()
+            #print(cmd)        
             
             for i in range(1, len(cmd)):
+                byte_array = bytearray()
                 byte_array.append(0x01)
                 byte_array.append(i-1 & 0xFF)
                 low_byte = cmd[i] & 0xFF
                 high_byte = (cmd[i] >> 8) & 0xFF
                 byte_array.append(high_byte)
                 byte_array.append(low_byte)
-            print(byte_array)#测试用
-            ser.write(byte_array)
+                print(byte_array)#测试用
+                ser.write(byte_array)
             time.sleep(cmd[0]/1000)
 
         # 关闭串口连接
