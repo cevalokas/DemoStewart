@@ -1,4 +1,5 @@
 import serial
+import csv
 import time
 
 # ser为串口对象，后续调用均用点运算符
@@ -14,12 +15,14 @@ def print_hex_array(byte_array):#调试用
         print(hex_value, end=' ')
 
 # 打开txt文件，按行读取整数并发送
-with open(file, 'r') as file:
-    time.sleep(2)
+with open(file, 'r', newline='') as csvfile:
+    #time.sleep(2)
+    fire = csv.reader(csvfile)
+    next(file)
     for line in file:
         # 将每一行的内容分割成整数列表
         int_array = [int(x) for x in line.split()]
-        #print(int_array)#调试用
+        print(int_array)#调试用
 
         # 将时间转换成12位指令
         for i in range(1, 7):

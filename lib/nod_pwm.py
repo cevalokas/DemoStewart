@@ -1,5 +1,6 @@
 import time
 import math
+import numpy as np
 from stewart_ik_v4 import refresh, writePWM
 
 
@@ -9,25 +10,32 @@ def neckNod(file_path):
   mid_pulse = 1500
   pos = 1500
   quickness = 20
+  t = 50
 
   refresh(file_path)
   
   while (pos >= min_pulse):
-    PWM = [50, pos, 1500, pos, 3000 - pos, 1500, 3000 - pos]
+    PWM_time = np.array([t, pos, 1500, pos, 3000 - pos, 1500, 3000 - pos])
+    PWM = np.copy(PWM_time)
+    PWM[1:] = PWM[1:]*4096/20000
     writePWM(file_path, PWM)
     pos = pos - quickness
   pos = pos + quickness
   while (pos <= max_pulse):
-    PWM = [50, pos, 1500, pos, 3000 - pos, 1500, 3000 - pos]
+    PWM_time = np.array([t, pos, 1500, pos, 3000 - pos, 1500, 3000 - pos])
+    PWM = np.copy(PWM_time)
+    PWM[1:] = PWM[1:]*4096/20000
     writePWM(file_path, PWM)
     pos = pos + quickness
   pos = pos + quickness
   while (pos >= mid_pulse):
-    PWM = [50, pos, 1500, pos, 3000 - pos, 1500, 3000 - pos]
+    PWM_time = np.array([t, pos, 1500, pos, 3000 - pos, 1500, 3000 - pos])
+    PWM = np.copy(PWM_time)
+    PWM[1:] = PWM[1:]*4096/20000
     writePWM(file_path, PWM)
     pos = pos - quickness
 
-  writePWM(file_path, PWM)
+
 
 
 

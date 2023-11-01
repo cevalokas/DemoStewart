@@ -95,7 +95,7 @@ void onRecv_sendServoCMD()
       u_int8_t pinNum = buff[1] & 0x0F;
       int boardNum = buff[1] >> 4;
       u_int16_t pulseWidth = buff[2]*256 + buff[3];
-      
+      //pulseWidth 合法范围102~512
       debbugingInfo(boardNum, pinNum, pulseWidth); // For debugging
 
       if (boardNum == 0){

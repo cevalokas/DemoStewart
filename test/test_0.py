@@ -1,8 +1,13 @@
-import csv
+import numpy as np
 
-def writePWM(file_path, PWM):  #输出PWN信号
-    with open(file_path, 'a') as csvfile:  # 'a' 模式以附加
-        writer = csv.writer(csvfile)
-        writer.writerow(PWM)
+# 创建一个示例NumPy数组
+array = np.array([1, 2, 3, 4, 5])
 
-writePWM("./lib/pwm_cmd.csv", [1,2,3,4,5])
+# 选择要乘以的因子
+factor = 2
+
+# 使用NumPy进行数组乘法，从第二个元素开始
+result = np.copy(array)
+result[1:] = result[1:] * factor
+
+print(result)
