@@ -76,29 +76,37 @@ def stewart_ideal(X, V, lc, T): #平台中心对称，逆运动学
   return PWM
 
 
-def stewart_odd(X, L1, L2, g, DP, SP): #平台不中心对称，逆运动学
-  L1 = 5.0  # 长边（螺杆）的长度
-  L2 = 4.0  # 短边（转角）的长度
+def stewart_odd(X, V, DP, SP,lc): #平台不中心对称，逆运动学
+  L1 = 80.0  # 长边（螺杆）的长度
+  L2 = 20.0  # 短边（转角）的长度
+  PWM = np.zeros([lc,7])
 
-  L = np.zeros(6)
-  RX = np.array([[1, 0, 0], [0, np.cos(L1), -np.sin(L1)], [0, np.sin(L1), np.cos(L1)]])
-  RY = np.array([[np.cos(L2), 0, np.sin(L2)], [0, 1, 0], [-np.sin(L2), 0, np.cos(L2)]])
-  RZ = np.array([[np.cos(g), -np.sin(g), 0], [np.sin(g), np.cos(g), 0], [0, 0, 1]])
-  R = np.dot(RZ, np.dot(RY, RX))
+  for k in range(lc):
+    a, b, g = V[k,0], V[k,1], V[k,2]
+    L = np.zeros(6)
+    RX = np.array([[1, 0, 0], [0, np.cos(a), -np.sin(a)], [0, np.sin(a), np.cos(a)]])
+    RY = np.array([[np.cos(b), 0, np.sin(b)], [0, 1, 0], [-np.sin(b), 0, np.cos(b)]])
+    RZ = np.array([[np.cos(g), -np.sin(g), 0], [np.sin(g), np.cos(g), 0], [0, 0, 1]])
+    R = np.dot(RZ, np.dot(RY, RX))
 
-  for i in range(6): #计算对应两点距离
-    L[i] = np.linalg.norm(X + np.dot(R, DP[i]) - SP[i])
-  cos_angle_A = np.zeros(6)
-  angle_A = np.zeros(6)
+    for i in range(6): #计算对应两点距离
+        #print(X[k] + np.dot(R, DP[i]) - SP[i])#test
+        L[i] = np.linalg.norm(X[k] + np.dot(R, DP[i]) - SP[i])
+    #print(L)#test
 
-  for i in range(6): # 使用余弦定理计算每个角的余弦值
-    cos_angle_A[i] = (L2**2 + L[i]**2 - L1**2) / (2 * L2 * L[i])
+    cos_angle = np.zeros(6)
+    angle = np.zeros(6)
 
-  for i in range(6):# 使用反余弦函数计算每个角的度数
-    angle_A[i] = math.degrees(math.acos(cos_angle_A[i]))
-  PWM = np.zeros(6)
-  for i in range(6):
-    PWM[i] = 500 + angle_A[i]*2000/180
+    for i in range(6): # 使用余弦定理计算每个角的余弦值
+        cos_angle[i] = (L2**2 + L[i]**2 - L1**2) / (2 * L2 * L[i])
+        print(cos_angle[i])#test
+
+    for i in range(6):# 使用反余弦函数计算每个角的弧度
+        angle[i] = math.acos(cos_angle[i])
+    #to do 有三个是反过来的
+
+    for i in range(1, 6):
+        PWM[k, i] = int(500 + angle[i]*2000/math.pi)
 
   return PWM
 
@@ -111,9 +119,10 @@ def writePWM(file_path, PWM):  #输出PWN信号
 
 
 if __name__ == '__main__':
-    #SP, DP = readPlatform("./lib/platform_positions.csv")
+    SP, DP = readPlatform("./lib/platform_positions.csv")
     T, X, V, lc = readStateCMD("./lib/state_cmd.csv")
-    PWM = stewart_ideal(X, V, lc, T)  
+    PWM = stewart_odd(X, V, DP, SP, lc)
+    #PWM = stewart_ideal(X, V, lc, T)  
     refresh("./lib/pwm_cmd.csv")
     writePWM("./lib/pwm_cmd.csv",PWM)
 

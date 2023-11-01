@@ -12,7 +12,7 @@
   - "DelayTime, x, y, z, a, b, c" 延时，三维坐标和绕三个坐标轴旋转的角度
 - pwm_cmd.csv: 对每个舵机的pwm信号指令
   - "DelayTime, S0, S1, S2, S3, S4, S5"
-
+所有长度单位为mm
 
 # 3. 软件结构
 ## 接口协议
