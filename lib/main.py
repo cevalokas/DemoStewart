@@ -5,7 +5,7 @@ import time
 def send_commands(ser_port, file_path):
   try:
     # 创建串口连接
-    ser = serial.Serial(ser_port, 9600)  
+    ser = serial.Serial('COM4', 115200, 8, 'N', 1)
 
     # 打开CSV文件
     with open(file_path, 'r', newline='') as csvfile:
@@ -24,7 +24,9 @@ def send_commands(ser_port, file_path):
                 high_byte = (cmd[i] >> 8) & 0xFF
                 byte_array.append(high_byte)
                 byte_array.append(low_byte)
-                print(byte_array)#测试用
+                
+                #print(byte_array)#测试用
+                #print(bytes(byte_array))
                 ser.write(byte_array)
             time.sleep(cmd[0]/1000)
 
