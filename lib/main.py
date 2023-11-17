@@ -40,7 +40,8 @@ def send_commands(ser_port, file_path):
 
 if __name__ == '__main__':
   file_path = './lib/pwm_cmd.csv'  
-  ser_port = 'COM4'  
+  ser_port = 'COM5'  
+
   success = send_commands(ser_port, file_path)
   if success:
       print("Commands sent successfully.")
